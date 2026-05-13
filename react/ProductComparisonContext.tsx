@@ -10,6 +10,10 @@ export interface State {
   showDifferences: boolean
   products: ProductToCompare[]
   maxNumberOfItemsToCompare: number
+  enabled: boolean
+  enabledCategories: string[]
+  enabledCollections: string[]
+  enabledUrls: string[]
 }
 
 interface SetShowDifferences {
@@ -51,6 +55,16 @@ interface SetMaxLimit {
   args: { maxLimit: number }
 }
 
+interface SetToggleConfig {
+  type: 'SET_TOGGLE_CONFIG'
+  args: {
+    enabled: boolean
+    enabledCategories: string[]
+    enabledCollections: string[]
+    enabledUrls: string[]
+  }
+}
+
 type ReducerActions =
   | AddAll
   | AddMultiple
@@ -60,6 +74,7 @@ type ReducerActions =
   | SetShowDifferences
   | IsDrawerCollapsed
   | SetMaxLimit
+  | SetToggleConfig
 
 export type Dispatch = (action: ReducerActions) => void
 
@@ -168,6 +183,16 @@ const listReducer = (state: State, action: ReducerActions): State => {
       }
     }
 
+    case 'SET_TOGGLE_CONFIG': {
+      return {
+        ...state,
+        enabled: action.args.enabled,
+        enabledCategories: action.args.enabledCategories,
+        enabledCollections: action.args.enabledCollections,
+        enabledUrls: action.args.enabledUrls,
+      }
+    }
+
     default: {
       throw new Error(`Unhandled action type on product-list-context`)
     }
@@ -177,10 +202,14 @@ const listReducer = (state: State, action: ReducerActions): State => {
 const MAX_ITEMS_TO_COMPARE = 10
 
 const DEFAULT_STATE: State = {
-  isDrawerCollapsed: false,
+  isDrawerCollapsed: true,
   showDifferences: false,
   products: [] as ProductToCompare[],
   maxNumberOfItemsToCompare: MAX_ITEMS_TO_COMPARE,
+  enabled: false,
+  enabledCategories: [],
+  enabledCollections: [],
+  enabledUrls: [],
 }
 
 const ComparisonContext = createContext<State>(DEFAULT_STATE)
@@ -188,18 +217,32 @@ const ComparisonDispatchContext = createContext<Dispatch>((action) => {
   console.error('error in dispatch ', action)
 })
 
-const initialState: State = {
-  showDifferences: false,
-  isDrawerCollapsed: false,
-  products: [] as ProductToCompare[],
-  maxNumberOfItemsToCompare: MAX_ITEMS_TO_COMPARE,
-}
-
 interface Props {
   children: ReactChildren | ReactChild
+  enabled?: boolean
+  enabledCategories?: string[]
+  enabledCollections?: string[]
+  enabledUrls?: string[]
 }
 
-const ProductComparisonProvider = ({ children }: Props) => {
+const ProductComparisonProvider = ({
+  children,
+  enabled = false,
+  enabledCategories = [],
+  enabledCollections = [],
+  enabledUrls = [],
+}: Props) => {
+  const initialState: State = {
+    showDifferences: false,
+    isDrawerCollapsed: true,
+    products: [] as ProductToCompare[],
+    maxNumberOfItemsToCompare: MAX_ITEMS_TO_COMPARE,
+    enabled,
+    enabledCategories,
+    enabledCollections,
+    enabledUrls,
+  }
+
   const [state, dispatch] = useReducer(listReducer, initialState)
 
   const { data: appSettingsData } = useQuery(AppSettings, {
@@ -226,6 +269,18 @@ const ProductComparisonProvider = ({ children }: Props) => {
       },
     })
   }, [appSettingsData])
+
+  useEffect(() => {
+    dispatch({
+      type: 'SET_TOGGLE_CONFIG',
+      args: {
+        enabled,
+        enabledCategories: enabledCategories || [],
+        enabledCollections: enabledCollections || [],
+        enabledUrls: enabledUrls || [],
+      },
+    })
+  }, [enabled, enabledCategories, enabledCollections, enabledUrls])
 
   useEffect(() => {
     const initialProducts = localStorage.getItem('PRODUCTS_TO_COMPARE')

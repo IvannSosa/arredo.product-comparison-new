@@ -1,9 +1,9 @@
 {
-  "vendor": "vtex",
+  "vendor": "arredo",
   "name": "product-comparison",
-  "version": "0.20.0",
-  "title": "Product Comparison",
-  "description": "Product Comparison",
+  "version": "0.0.1",
+  "title": "Arredo Product Comparison",
+  "description": "Arredo Product Comparison",
   "defaultLocale": "pt-BR",
   "builders": {
     "styles": "2.x",

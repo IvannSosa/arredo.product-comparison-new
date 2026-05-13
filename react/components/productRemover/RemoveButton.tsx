@@ -11,7 +11,12 @@ import { injectIntl, defineMessages } from 'react-intl'
 import ComparisonContext from '../../ProductComparisonContext'
 import './remove.css'
 
-const CSS_HANDLES = ['closeButton', 'closeButtonContainer']
+const CSS_HANDLES = [
+  'closeButton',
+  'closeButtonContainer',
+  'closeButtonIcon',
+  'closeButtonLabel',
+]
 
 const messages = defineMessages({
   product: {
@@ -21,6 +26,10 @@ const messages = defineMessages({
   removed: {
     defaultMessage: '',
     id: 'store/product-comparison.product-selector.product-removed',
+  },
+  removeProduct: {
+    defaultMessage: '',
+    id: 'store/product-comparison.product-remover.remove-product',
   },
 })
 
@@ -75,14 +84,18 @@ const RemoveButton = ({ showToast, intl }: Props) => {
   }
 
   return (
-    <div
-      className={`${cssHandles.closeButtonContainer} flex justify-end items-start flex-grow-1`}
-    >
+    <div className={cssHandles.closeButtonContainer}>
       <button
-        className={`${cssHandles.closeButton} bg-transparent button-reset t-small pointer b--none-ns outline-0`}
+        className={`${cssHandles.closeButton} bg-transparent button-reset pointer b--none-ns outline-0`}
         onClick={removeProductFromCompare}
+        type="button"
       >
-        <IconClose orientation="right" size={12} type="line" />
+        <span className={cssHandles.closeButtonIcon}>
+          <IconClose orientation="right" size={12} type="line" />
+        </span>
+        <span className={cssHandles.closeButtonLabel}>
+          {intl.formatMessage(messages.removeProduct)}
+        </span>
       </button>
     </div>
   )
