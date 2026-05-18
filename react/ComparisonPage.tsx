@@ -31,19 +31,19 @@ interface Props extends InjectedIntlProps {
 
 const messages = defineMessages({
   removeAll: {
-    defaultMessage: '',
+    defaultMessage: 'Borrar todo',
     id: 'store/product-comparison.drawer.remove-all',
   },
   removeAllMessage: {
-    defaultMessage: '',
+    defaultMessage: 'Se removieron todos los productos de la comparación',
     id: 'store/product-comparison.drawer.remove-all-message',
   },
   backToProducts: {
-    defaultMessage: '',
+    defaultMessage: 'Volver a la sábana de productos',
     id: 'store/product-comparison.main-page.back-to-products',
   },
   title: {
-    defaultMessage: '',
+    defaultMessage: 'Encontrá tu mejor opción',
     id: 'store/product-comparison.main-page.title',
   },
 })

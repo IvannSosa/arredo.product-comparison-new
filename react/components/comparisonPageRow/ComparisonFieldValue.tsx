@@ -18,6 +18,28 @@ interface Props {
   productToCompare: ProductToCompare
   field: ComparisonField
 }
+
+// Algunas specs del catálogo guardan HTML (br, ul, li, strong) — renderizamos
+// como markup en lugar de texto escapado. Heurística: presencia de un tag.
+const HTML_TAG_REGEX = /<[a-z][\s\S]*?>/i
+
+const renderSpecValue = (value: string, className: string, key: string) => {
+  if (typeof value === 'string' && HTML_TAG_REGEX.test(value)) {
+    return (
+      <span
+        className={className}
+        key={key}
+        dangerouslySetInnerHTML={{ __html: value }}
+      />
+    )
+  }
+
+  return (
+    <span className={className} key={key}>
+      {value}
+    </span>
+  )
+}
 const ComparisonFieldValue = ({ field, productToCompare }: Props) => {
   const cssHandles = useCssHandles(CSS_HANDLES)
   const { useComparisonProductState } = ComparisonProductContext
@@ -66,16 +88,13 @@ const ComparisonFieldValue = ({ field, productToCompare }: Props) => {
       <div
         className={`${cssHandles.productSpecificationValues} flex flex-column`}
       >
-        {values.map((value) => {
-          return (
-            <span
-              className={`${cssHandles.productSpecificationValue}`}
-              key={`${field.fieldType}-${field.name}-${value}`}
-            >
-              {value}
-            </span>
+        {values.map((value) =>
+          renderSpecValue(
+            value,
+            cssHandles.productSpecificationValue,
+            `${field.fieldType}-${field.name}-${value}`
           )
-        })}
+        )}
       </div>
     )
   }
@@ -90,16 +109,13 @@ const ComparisonFieldValue = ({ field, productToCompare }: Props) => {
 
     return (
       <div className={`${cssHandles.skuSpecificationValues} flex flex-column`}>
-        {values.map((value) => {
-          return (
-            <span
-              className={`${cssHandles.skuSpecificationValue}`}
-              key={`${field.fieldType}-${field.name}-${value}`}
-            >
-              {value}
-            </span>
+        {values.map((value) =>
+          renderSpecValue(
+            value,
+            cssHandles.skuSpecificationValue,
+            `${field.fieldType}-${field.name}-${value}`
           )
-        })}
+        )}
       </div>
     )
   }
@@ -122,16 +138,13 @@ const ComparisonFieldValue = ({ field, productToCompare }: Props) => {
       <div
         className={`${cssHandles.productSpecificationValues} flex flex-column`}
       >
-        {values.map((value) => {
-          return (
-            <span
-              className={`${cssHandles.productSpecificationValue}`}
-              key={`${field.fieldType}-${field.name}-${value}`}
-            >
-              {value}
-            </span>
+        {values.map((value) =>
+          renderSpecValue(
+            value,
+            cssHandles.productSpecificationValue,
+            `${field.fieldType}-${field.name}-${value}`
           )
-        })}
+        )}
       </div>
     )
   }

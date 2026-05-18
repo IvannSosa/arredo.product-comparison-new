@@ -8,6 +8,11 @@ import ComparisonContext from '../../ProductComparisonContext'
 import { splitString } from '../utils/fieldUtils'
 import './fieldGroup.css'
 
+// Specs cuyo `name` contiene markup HTML son data sucia del catálogo
+// (alguien cargó el HTML en el campo "name" en vez de en el "value").
+// El comparador las saltea para no mostrar los tags como texto en el label.
+const SPEC_NAME_HAS_HTML = /<[a-z][\s\S]*?>/i
+
 const CSS_HANDLES = ['title']
 
 interface Props {
@@ -66,6 +71,17 @@ const GroupedProductSpecifications = ({
               )
 
               specifications.forEach((specification: ProductSpecification) => {
+                const specName = pathOr('', ['name'], specification)
+
+                // Filtro defensivo: si el `name` trae HTML, es una spec mal
+                // cargada en el catálogo — la salteamos.
+                if (
+                  typeof specName === 'string' &&
+                  SPEC_NAME_HAS_HTML.test(specName)
+                ) {
+                  return
+                }
+
                 const isExists = groupedSpecifications.find(
                   (s: ProductSpecification) => s.name == specification.name
                 )

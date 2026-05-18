@@ -199,7 +199,10 @@ const listReducer = (state: State, action: ReducerActions): State => {
   }
 }
 
-const MAX_ITEMS_TO_COMPARE = 10
+// Límite de productos en la comparación. Alineado con los 3 slots del
+// drawer (Figma node 5947:171888). Puede sobrescribirse desde los settings
+// del app vía `maxNumberOfItemsToCompare`.
+const MAX_ITEMS_TO_COMPARE = 3
 
 const DEFAULT_STATE: State = {
   isDrawerCollapsed: true,

@@ -29,6 +29,8 @@ const CSS_HANDLES = [
   'drawerBody',
   'drawerActions',
   'drawerChevron',
+  'drawerEmptySlot',
+  'drawerEmptySlotText',
 ]
 
 const messages = defineMessages({
@@ -72,17 +74,27 @@ const messages = defineMessages({
     defaultMessage: '',
     id: 'store/product-comparison.drawer.max-items-message-2',
   },
+  emptySlot: {
+    defaultMessage: '',
+    id: 'store/product-comparison.drawer.empty-slot',
+  },
 })
+
+// Cantidad de slots visibles en el drawer (Figma node 5947:171888 — mobile).
+// Los slots no ocupados por un producto se renderizan como placeholders.
+const DEFAULT_NUMBER_OF_SLOTS = 3
 
 interface Props extends InjectedIntlProps {
   showToast?: (input: ToastInput) => void
   comparisonPageUrl?: string
+  numberOfSlots?: number
 }
 
 const ComparisonDrawer = ({
   showToast,
   intl,
   comparisonPageUrl,
+  numberOfSlots = DEFAULT_NUMBER_OF_SLOTS,
 }: Props) => {
   const cssHandles = useCssHandles(CSS_HANDLES)
   const { navigate } = useRuntime()
@@ -117,6 +129,12 @@ const ComparisonDrawer = ({
   const comparisonProducts = pathOr(
     [] as ProductToCompare[],
     ['products'],
+    comparisonData
+  )
+
+  const maxNumberOfItemsToCompare = pathOr(
+    DEFAULT_NUMBER_OF_SLOTS,
+    ['maxNumberOfItemsToCompare'],
     comparisonData
   )
 
@@ -164,11 +182,13 @@ const ComparisonDrawer = ({
       return
     }
 
-    if (comparisonProducts.length > 10) {
+    if (comparisonProducts.length > maxNumberOfItemsToCompare) {
       showMessage(
         `${intl.formatMessage(
           messages.maxItemsMessage1
-        )} ${10} ${intl.formatMessage(messages.maxItemsMessage2)}`
+        )} ${maxNumberOfItemsToCompare} ${intl.formatMessage(
+          messages.maxItemsMessage2
+        )}`
       )
       e.preventDefault()
       e.stopPropagation()
@@ -188,6 +208,13 @@ const ComparisonDrawer = ({
   }
 
   const stateClass = isCollapsed ? cssHandles.drawerClosed : cssHandles.drawerOpened
+
+  // Slots vacíos "Sin producto" — completan la grilla hasta numberOfSlots.
+  // En desktop se ocultan vía CSS; en mobile se apilan debajo de los productos.
+  const emptySlotsCount = Math.max(
+    0,
+    numberOfSlots - comparisonProducts.length
+  )
 
   return (
     <div className={`${cssHandles.drawerContainer} ${stateClass}`}>
@@ -224,7 +251,41 @@ const ComparisonDrawer = ({
         aria-hidden={isCollapsed}
       >
         <div className={cssHandles.drawer}>
-          <ExtensionPoint id="list-context.comparison-product-summary-slider" />
+          {/*
+           * `key` derivada del set de productos: fuerza el remount del slider
+           * cuando cambia la comparación. vtex.slider-layout retiene slides
+           * obsoletos al achicarse la lista (cards fantasma); un mount fresco
+           * no puede arrastrar ese estado interno.
+           */}
+          <ExtensionPoint
+            id="list-context.comparison-product-summary-slider"
+            key={`comparison-drawer-slider-${comparisonProducts
+              .map((product) => `${product.productId}-${product.skuId}`)
+              .join('_')}`}
+          />
+
+          {Array.from({ length: emptySlotsCount }).map((_, index) => {
+            // Posición global del slot en la grilla 3-up (después de los
+            // productos seleccionados). El SCSS desktop la consume vía CSS
+            // var para alinear el placeholder con la celda vacía del slider.
+            const slotIndex = comparisonProducts.length + index
+
+            return (
+              <div
+                // eslint-disable-next-line react/no-array-index-key
+                key={`comparison-drawer-empty-slot-${index}`}
+                className={cssHandles.drawerEmptySlot}
+                style={
+                  { '--slot-index': slotIndex } as React.CSSProperties
+                }
+                aria-hidden="true"
+              >
+                <span className={cssHandles.drawerEmptySlotText}>
+                  {intl.formatMessage(messages.emptySlot)}
+                </span>
+              </div>
+            )
+          })}
         </div>
 
         <div className={`${cssHandles.drawerActions} ${cssHandles.comparisonButtons}`}>
@@ -262,6 +323,13 @@ ComparisonDrawer.schema = {
     comparisonPageUrl: {
       title: 'admin/editor.comparison-grid.drawer.title',
       type: 'string',
+    },
+    numberOfSlots: {
+      title: 'admin/editor.comparison-drawer.number-of-slots.title',
+      description:
+        'admin/editor.comparison-drawer.number-of-slots.description',
+      type: 'number',
+      default: DEFAULT_NUMBER_OF_SLOTS,
     },
   },
 }

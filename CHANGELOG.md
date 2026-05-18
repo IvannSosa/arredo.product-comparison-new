@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- `numberOfSlots` prop on the comparison drawer (default `3`): renders empty "Sin producto" placeholder slots until the slot count is filled. Placeholders are shown stacked on mobile and hidden on desktop via CSS.
+- `store/product-comparison.drawer.empty-slot` message and `admin/editor.comparison-drawer.number-of-slots` editor labels.
+- `ProductSummaryRow` now renders the spec column header ("Fichas") in `fieldNameCol`, visible on mobile (comparison page). New `store/product-comparison.main-page.specs-column-title` message.
+
+### Changed
+- Default `maxNumberOfItemsToCompare` lowered from `10` to `3`, aligned with the drawer's 3 slots. Still overridable via app settings.
+- `ComparisonDrawer` "compare" guard now uses `maxNumberOfItemsToCompare` instead of a hardcoded `10`.
+- Comparison page (`/product-comparison`) title copy changed to "Encontrá tu opción correcta" (`es`) to match design.
+
+### Fixed
+- Ghost/duplicate product cards in the drawer after removing items: the slider's `ExtensionPoint` now remounts (keyed by the comparison set) so `vtex.slider-layout` can't retain stale slides.
+
 ## [0.20.0] - 2025-08-25
 
 ### Added
