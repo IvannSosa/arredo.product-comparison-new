@@ -285,11 +285,21 @@ const ProductSelector = ({ showToast, intl }: Props) => {
     }
   }
 
-  const productSelectorChanged = (e: { target: { checked: boolean } }) => {
-    if (e.target.checked && productsSelected.length === maxItemsToCompare) {
-      setIsChecked(false)
-      showMessage(`${intl.formatMessage(messages.comparisonUpperLimit)}`, true)
-    } else if (e.target.checked) {
+  // Único path de toggle: lo dispara el wrapper en su `onClick`. El
+  // `onChange` del Checkbox queda como noop — antes intentábamos manejar
+  // ambos y el `preventDefault` del wrapper bloqueaba el toggle nativo del
+  // input justo cuando ya estaba checked, así no se podía deseleccionar.
+  const performToggle = () => {
+    if (!isChecked) {
+      if (productsSelected.length === maxItemsToCompare) {
+        showMessage(
+          `${intl.formatMessage(messages.comparisonUpperLimit)}`,
+          true
+        )
+
+        return
+      }
+
       dispatchComparison({
         args: {
           product: { productId, skuId: itemId },
@@ -302,25 +312,37 @@ const ProductSelector = ({ showToast, intl }: Props) => {
         )} "${productName}" ${intl.formatMessage(messages.added)}`,
         isDrawerCollapsed
       )
-    } else {
-      dispatchComparison({
-        args: {
-          product: { productId, skuId: itemId },
-        },
-        type: 'REMOVE',
-      })
-      showMessage(
-        `${intl.formatMessage(
-          messages.product
-        )} "${productName}" ${intl.formatMessage(messages.removed)}`,
-        isDrawerCollapsed
-      )
+
+      return
     }
+
+    dispatchComparison({
+      args: {
+        product: { productId, skuId: itemId },
+      },
+      type: 'REMOVE',
+    })
+    showMessage(
+      `${intl.formatMessage(
+        messages.product
+      )} "${productName}" ${intl.formatMessage(messages.removed)}`,
+      isDrawerCollapsed
+    )
   }
 
   const productSelectionOnClicked = (e: MouseEvent) => {
+    // Cualquier click dentro del wrapper (pill completo: ícono, label, área
+    // libre) toggle. Prevenimos el comportamiento default del input para que
+    // el browser no dispare un segundo toggle encima del nuestro.
     e.preventDefault()
     e.stopPropagation()
+    performToggle()
+  }
+
+  const noopChange = () => {
+    // El Checkbox es presentacional. El estado lo controla `isChecked`
+    // (derivado del contexto vía useEffect); el toggle real sale del
+    // `onClick` del wrapper.
   }
 
   return (
@@ -333,7 +355,7 @@ const ProductSelector = ({ showToast, intl }: Props) => {
         id={`${productId}-${itemId}-product-comparison`}
         label={intl.formatMessage(messages.compare)}
         name={`${productId}-${itemId}-product-comparison`}
-        onChange={productSelectorChanged}
+        onChange={noopChange}
         value={isChecked}
       />
     </div>
