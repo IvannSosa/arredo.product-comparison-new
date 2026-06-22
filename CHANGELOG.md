@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-06-22
+
 ### Added
 - `numberOfSlots` prop on the comparison drawer (default `3`): renders empty "Sin producto" placeholder slots until the slot count is filled. Placeholders are shown stacked on mobile and hidden on desktop via CSS.
 - `store/product-comparison.drawer.empty-slot` message and `admin/editor.comparison-drawer.number-of-slots` editor labels.
