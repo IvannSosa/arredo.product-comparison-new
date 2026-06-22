@@ -51,7 +51,7 @@
   "store/product-comparison.product-summary-row.show-differences": "Solo mostrar diferencias",
   "admin/editor.comparison-grid.product-specification-groups-to-be-removed.title": "Ocultar grupo de especificaciones de producto",
   "admin/editor.comparison-grid.product-specification-groups-to-be-removed.description": "Nombres de los grupos de especificaciones de producto que deben ocultarse en la página de comparación (se deben separar con comas `,`)",
-  "store/product-comparison.product-selector.upper-limit-exceeded": "No se puede agregar este ítem a la comparación. Se excedió el tamaño del contenedor.",
+  "store/product-comparison.product-selector.upper-limit-exceeded": "Podés comparar hasta 3 productos",
   "admin/editor.comparison-context-wrapper.title": "Comparador de productos",
   "admin/editor.comparison-context-wrapper.description": "Configuración global del comparador de productos. Se aplica a todas las PLPs.",
   "admin/editor.comparison-context-wrapper.enabled.title": "Activar comparador",

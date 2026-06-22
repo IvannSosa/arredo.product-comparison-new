@@ -266,8 +266,8 @@ const ProductSelector = ({ showToast, intl }: Props) => {
     const selectedProducts =
       productId && itemId
         ? find(
-            allPass([propEq('productId', productId), propEq('skuId', itemId)])
-          )(productsSelected)
+          allPass([propEq('productId', productId), propEq('skuId', itemId)])
+        )(productsSelected)
         : []
 
     setIsChecked(selectedProducts && !isEmpty(selectedProducts))
